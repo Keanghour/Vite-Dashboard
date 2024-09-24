@@ -24,16 +24,32 @@ const router = createRouter({
                     component: () => import('@/views/Product.vue')
                 },
                 {
-                    path: '/home/default',
-                    name: 'home',
-                    component: () => import('@/views/pages/home/DataView.vue')
+                    path: '/order',
+                    name: 'order',
+                    component: () => import('@/views/Order.vue')
+                },
+                {
+                    path: '/report',
+                    name: 'report',
+                    component: () => import('@/views/Report.vue')
+                },
+                {
+                    path: '/wallet',
+                    name: 'wallet',
+                    component: () => import('@/views/Wallet.vue')
+                },
+                {
+                    path: '/notification',
+                    name: 'notification',
+                    component: () => import('@/views/Notification.vue')
+                },
+                {
+                    path: '/setting',
+                    name: 'setting',
+                    component: () => import('@/views/Setting.vue')
                 }
             ]
-        },
-        {
-            path: '/auth/login',
-            name: 'login',
-            component: () => import('@/views/pages/auth/Login.vue')
+
         }
 
     ]

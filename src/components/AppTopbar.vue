@@ -1,43 +1,43 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted, onBeforeUnmount } from 'vue';
 import { useLayout } from '@/components/composables/layout';
 
 const { onMenuToggle, toggleDarkMode, isDarkTheme } = useLayout();
-
 const isProfileMenuVisible = ref(false);
 
 // Profile menu items
 const profileMenuItems = [
-    {
-        label: 'Settings',
-        icon: 'pi pi-cog'
-    },
-    {
-        label: 'Logout',
-        icon: 'pi pi-sign-out'
-    }
+    { label: 'Settings', icon: 'pi pi-cog' },
+    { label: 'Logout', icon: 'pi pi-sign-out' }
 ];
 
-// Toggle profile menu visibility
 function toggleProfileMenu() {
     isProfileMenuVisible.value = !isProfileMenuVisible.value;
 }
 
-// Handle menu item click
 function handleMenuClick(item) {
-    // Handle different menu item actions here
     console.log(`Clicked on ${item.label}`);
     if (item.label === 'Logout') {
         // Handle logout logic
     }
-    // Close the menu after an item is clicked
     isProfileMenuVisible.value = false;
 }
 
+function handleScroll() {
+    isProfileMenuVisible.value = false;
+}
+
+onMounted(() => {
+    document.addEventListener('scroll', handleScroll);
+});
+
+onBeforeUnmount(() => {
+    document.removeEventListener('scroll', handleScroll);
+});
 </script>
 
 <template>
-    <div class="layout-topbar">
+    <div :class="{ 'dark-theme': isDarkTheme }" class="layout-topbar">
         <div class="layout-topbar-logo-container">
             <button class="layout-menu-button layout-topbar-action" @click="onMenuToggle">
                 <i class="pi pi-bars"></i>
@@ -57,7 +57,7 @@ function handleMenuClick(item) {
             <button class="layout-topbar-action" @click="toggleProfileMenu">
                 <i class="pi pi-user"></i>
             </button>
-            <div :class="['profile-menu', { 'block': isProfileMenuVisible, 'hidden': !isProfileMenuVisible }]">
+            <div :class="['profile-menu', { 'block': isProfileMenuVisible }]">
                 <ul>
                     <li v-for="item in profileMenuItems" :key="item.label" @click="handleMenuClick(item)">
                         <i :class="item.icon"></i> {{ item.label }}
@@ -74,50 +74,13 @@ function handleMenuClick(item) {
     justify-content: space-between;
     align-items: center;
     padding: 0 1rem;
-    /* background-color: var(--surface-0);  */
 }
 
-.layout-topbar-logo-container {
-    display: flex;
-    align-items: center;
-}
-
-.layout-menu-button {
-    margin-right: 1rem;
-    cursor: pointer;
-}
-
-.layout-topbar-actions {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-}
-
-.layout-topbar-menu {
-    display: flex;
-    align-items: center;
-}
-
-.layout-topbar-action {
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 1.5rem;
-    color: var(--primary); /* Adjust based on your theme */
-}
-
-.layout-topbar-logo {
-    font-size: 1.25rem;
-    font-weight: bold;
-    color: var(--primary); /* Adjust based on your theme */
-}
-
-/* Dropdown Menu Styles */
 .profile-menu {
     position: absolute;
     right: 1rem;
     top: 90%;
-    background: white;
+    background: white; /* Default background for light mode */
     border: 1px solid var(--border-color);
     border-radius: 0.50rem;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -128,6 +91,20 @@ function handleMenuClick(item) {
 
 .profile-menu.block {
     display: block; /* Make sure the block class is applied */
+}
+
+/* Dark Mode Styles for Dropdown */
+.dark-theme .profile-menu {
+    background: black !important; /* Background for dark mode */
+    border-color: #666 !important; /* Darker border for dark mode */
+}
+
+.dark-theme .profile-menu li {
+    color: white !important; /* Light text color in dark mode */
+}
+
+.dark-theme .profile-menu li:hover {
+    background-color: #555 !important; /* Darker hover effect in dark mode */
 }
 
 /* Profile menu item styling */
@@ -152,5 +129,4 @@ function handleMenuClick(item) {
 .profile-menu i {
     margin-right: 1rem;
 }
-
 </style>
