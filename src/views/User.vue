@@ -1,6 +1,148 @@
+<template>
+    <div class="card">
+        <div class="font-semibold text-xl mb-4">Customer Management</div>
+        <DataTable :value="customers1" :paginator="true" :rows="10" dataKey="id" :rowHover="true" :filters="filters1"
+            filterDisplay="menu" :loading="loading1" :globalFilterFields="['name', 'gender', 'email']" showGridlines
+            stripedRows tableStyle="min-width: 50rem">
+            <template #header>
+                <div class="flex justify-between">
+                    <Button type="button" label="Add User" @click="showAddCustomerDialog" />
+                    <div class="flex align-items-center">
+                        <InputText v-model="filters1.global.value" placeholder="Keyword Search" />
+                    </div>
+                </div>
+            </template>
+            <template #empty>No customers found.</template>
+            <template #loading>Loading customers data. Please wait.</template>
+
+            <Column header="No" style="min-width: 2rem">
+                <template #body="{ index }">
+                    {{ index + 1 }}
+                </template>
+            </Column>
+
+            <Column header="Profile" style="min-width: 4rem">
+                <template #body="{ data }">
+                    <img :src="data.profilePicture" alt="Profile" style="width: 32px; border-radius: 50%;" />
+                </template>
+            </Column>
+
+            <Column field="name" header="Name" style="min-width: 10rem" @click="viewCustomer(data)" />
+            <Column field="gender" header="Gender" style="min-width: 2rem" />
+            <Column field="phone" header="Phone" style="min-width: 10rem" />
+            <Column field="email" header="Email" style="min-width: 10rem" />
+            <Column field="address" header="Address" style="min-width: 16rem" />
+            <Column header="Status" style="min-width: 8rem">
+                <template #body="{ data }">
+                    <span :class="data.isActive ? 'text-green-500' : 'text-red-500'">
+                        <i :class="data.isActive ? 'pi pi-check-circle' : 'pi pi-times-circle'"></i>
+                        {{ data.isActive ? ' Active' : ' Inactive' }}
+                    </span>
+                </template>
+            </Column>
+
+            <Column header="Action" style="min-width: 8rem">
+                <template #body="slotProps">
+                    <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="editUser(slotProps.data)" />
+                    <Button icon="pi pi-trash" outlined rounded severity="danger" @click="confirmDeleteUser(slotProps.data.id)" />
+                </template>
+            </Column>
+        </DataTable>
+
+        <!-- Delete Confirmation Dialog -->
+        <Dialog :visible="deleteCustomerDialogVisible" modal @hide="deleteCustomerDialogVisible = false" header="Confirm Deletion">
+            <div>Are you sure you want to delete this customer?</div>
+            <template #footer>
+                <Button label="No" icon="pi pi-times" @click="deleteCustomerDialogVisible = false" class="p-button-text" />
+                <Button label="Yes" icon="pi pi-check" @click="deleteCustomer(currentCustomerId)" />
+            </template>
+        </Dialog>
+
+        <!-- Add/Edit Customer Dialog -->
+        <Dialog :visible="customerDialogVisible" modal @hide="closeDialog" :header="isEditMode ? 'Edit Customer' : 'Add Customer'" class="custom-dialog">
+            <div class="card-container">
+                <div class="card-header">
+                    <h4>{{ isEditMode ? 'Edit Customer' : 'Add Customer' }}</h4>
+                </div>
+                <div class="form-container">
+                    <div class="field">
+                        <label for="name">Name</label>
+                        <InputText id="name" v-model="currentCustomer.name" />
+                    </div>
+                    <div class="field">
+                        <label for="gender">Gender</label>
+                        <Dropdown id="gender" v-model="currentCustomer.gender" :options="['Male', 'Female']" placeholder="Select Gender" />
+                    </div>
+                    <div class="field">
+                        <label for="phone">Phone</label>
+                        <InputText id="phone" v-model="currentCustomer.phone" />
+                    </div>
+                    <div class="field">
+                        <label for="email">Email</label>
+                        <InputText id="email" v-model="currentCustomer.email" />
+                    </div>
+                    <div class="field">
+                        <label for="address">Address</label>
+                        <InputText id="address" v-model="currentCustomer.address" />
+                    </div>
+                    <div class="field">
+                        <label for="profilePicture">Profile Picture URL</label>
+                        <InputText id="profilePicture" v-model="currentCustomer.profilePicture" />
+                    </div>
+                    <div class="field">
+                        <label for="isActive">Status</label>
+                        <Dropdown id="isActive" v-model="currentCustomer.isActive" :options="[{ label: 'Active', value: true }, { label: 'Inactive', value: false }]" placeholder="Select Status" />
+                    </div>
+                </div>
+            </div>
+            <template #footer>
+                <Button label="Cancel" icon="pi pi-times" @click="closeDialog" class="p-button-text" />
+                <Button label="Save" icon="pi pi-check" @click="saveCustomer" />
+            </template>
+        </Dialog>
+
+        <!-- View Customer Dialog -->
+        <Dialog
+            :visible="viewDialogVisible"
+            modal
+            @hide="viewDialogVisible = false"
+            header="Customer Details"
+            class="custom-dialog"
+        >
+            <div class="card-container">
+                <div class="card-header">
+                    <h4>Customer Information</h4>
+                </div>
+                <div class="card-body">
+                    <div><strong>Name:</strong> {{ currentCustomer.name }}</div>
+                    <div><strong>Gender:</strong> {{ currentCustomer.gender }}</div>
+                    <div><strong>Phone:</strong> {{ currentCustomer.phone }}</div>
+                    <div><strong>Email:</strong> {{ currentCustomer.email }}</div>
+                    <div><strong>Address:</strong> {{ currentCustomer.address }}</div>
+                    <div>
+                        <strong>Profile Picture:</strong>
+                        <img :src="currentCustomer.profilePicture" alt="Profile" class="profile-pic" />
+                    </div>
+                    <div>
+                        <strong>Status:</strong>
+                        <span :class="currentCustomer.isActive ? 'text-green-600' : 'text-red-600'">
+                            <i :class="currentCustomer.isActive ? 'pi pi-check-circle' : 'pi pi-times-circle'"></i>
+                            {{ currentCustomer.isActive ? ' Active' : ' Inactive' }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <template #footer>
+                <Button label="Close" icon="pi pi-times" @click="viewDialogVisible = false" class="p-button-text" />
+            </template>
+        </Dialog>
+
+    </div>
+</template>
+
 <script setup>
 import { ref, reactive, onBeforeMount } from 'vue';
-import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
+import { FilterMatchMode } from '@primevue/core/api';
 import Dialog from 'primevue/dialog';
 import Dropdown from 'primevue/dropdown';
 import InputText from 'primevue/inputtext';
@@ -23,9 +165,12 @@ const currentCustomer = reactive({
     email: '',
     address: '',
     profilePicture: defaultImage,
+    isActive: true,
 });
 const customerDialogVisible = ref(false);
 const viewDialogVisible = ref(false);
+const deleteCustomerDialogVisible = ref(false);
+const currentCustomerId = ref(null);
 const isEditMode = ref(false);
 
 onBeforeMount(async () => {
@@ -40,6 +185,7 @@ onBeforeMount(async () => {
             email: user.email,
             address: `${user.address.city}, ${user.address.street}, ${user.address.number}`,
             profilePicture: user.image || defaultImage,
+            isActive: Math.random() > 0.5, // Randomly assign active/inactive for demo purposes
         }));
     } catch (error) {
         console.error('Error fetching users:', error);
@@ -54,17 +200,6 @@ const showAddCustomerDialog = () => {
     isEditMode.value = false;
 };
 
-const editCustomer = (customer) => {
-    Object.assign(currentCustomer, customer);
-    customerDialogVisible.value = true;
-    isEditMode.value = true;
-};
-
-const viewCustomer = (customer) => {
-    Object.assign(currentCustomer, customer);
-    viewDialogVisible.value = true;
-};
-
 const saveCustomer = () => {
     if (isEditMode.value) {
         const index = customers1.value.findIndex(c => c.id === currentCustomer.id);
@@ -72,16 +207,10 @@ const saveCustomer = () => {
             customers1.value[index] = { ...currentCustomer };
         }
     } else {
-        const newId = customers1.value.length + 1;
+        const newId = customers1.value.length ? Math.max(...customers1.value.map(c => c.id)) + 1 : 1;
         customers1.value.push({ ...currentCustomer, id: newId });
     }
     closeDialog();
-};
-
-const deleteCustomer = (customerId) => {
-    if (confirm('Are you sure you want to delete this customer?')) {
-        customers1.value = customers1.value.filter(customer => customer.id !== customerId);
-    }
 };
 
 const closeDialog = () => {
@@ -97,118 +226,30 @@ const resetCurrentCustomer = () => {
     currentCustomer.email = '';
     currentCustomer.address = '';
     currentCustomer.profilePicture = defaultImage;
+    currentCustomer.isActive = true;
+};
+
+const editUser = (customer) => {
+    Object.assign(currentCustomer, customer);
+    customerDialogVisible.value = true;
+    isEditMode.value = true;
+};
+
+const confirmDeleteUser = (customerId) => {
+    currentCustomerId.value = customerId;
+    deleteCustomerDialogVisible.value = true;
+};
+
+const deleteCustomer = (customerId) => {
+    customers1.value = customers1.value.filter(c => c.id !== customerId);
+    deleteCustomerDialogVisible.value = false;
+};
+
+const viewCustomer = (customer) => {
+    Object.assign(currentCustomer, customer);
+    viewDialogVisible.value = true;
 };
 </script>
-
-
-<template>
-    <div class="card">
-        <div class="font-semibold text-xl mb-4">Filtering</div>
-        <DataTable
-            :value="customers1"
-            :paginator="true"
-            :rows="10"
-            dataKey="id"
-            :rowHover="true"
-            :filters="filters1"
-            filterDisplay="menu"
-            :loading="loading1"
-            :globalFilterFields="['name', 'gender', 'email']"
-            showGridlines
-            stripedRows
-            tableStyle="min-width: 50rem"
-        >
-            <template #header>
-                <div class="flex justify-between">
-                    <Button type="button" label="Add User" @click="showAddCustomerDialog" />
-                    <div class="flex align-items-center">
-                        <!-- <i class="pi pi-search" /> -->
-                        <InputText v-model="filters1.global.value" placeholder="Keyword Search" />
-                    </div>
-                </div>
-            </template>
-            <template #empty>No customers found.</template>
-            <template #loading>Loading customers data. Please wait.</template>
-
-            <Column header="No" style="min-width: 2rem">
-                <template #body="{ index }">
-                    {{ index + 1 }}
-                </template>
-            </Column>
-
-            <Column header="Profile" style="min-width: 6rem">
-                <template #body="{ data }">
-                    <img :src="data.profilePicture" alt="Profile" style="width: 32px; border-radius: 50%;" />
-                </template>
-            </Column>
-
-            <Column field="name" header="Name" style="min-width: 12rem" />
-            <Column field="gender" header="Gender" style="min-width: 4rem" />
-            <Column field="phone" header="Phone" style="min-width: 12rem" />
-            <Column field="email" header="Email" style="min-width: 12rem" />
-            <Column field="address" header="Address" style="min-width: 16rem" />
-            <Column header="Actions" style="min-width: 7rem">
-                <template #body="{ data }">
-                    <div class="flex justify-center space-x-4">
-                        <i class="pi pi-eye cursor-pointer action-icon" @click="viewCustomer(data)" title="View Customer"></i>
-                        <i class="pi pi-pencil cursor-pointer action-icon" @click="editCustomer(data)" title="Edit Customer"></i>
-                        <i class="pi pi-trash cursor-pointer action-icon" @click="deleteCustomer(data.id)" title="Delete Customer"></i>
-                    </div>
-                </template>
-            </Column>
-        </DataTable>
-
-        <!-- Add/Edit Customer Dialog -->
-        <Dialog :visible="customerDialogVisible" modal @hide="closeDialog" :header="isEditMode ? 'Edit Customer' : 'Add Customer'">
-            <div class="form-container">
-                <div class="field">
-                    <label for="name">Name</label>
-                    <InputText id="name" v-model="currentCustomer.name" />
-                </div>
-                <div class="field">
-                    <label for="gender">Gender</label>
-                    <Dropdown id="gender" v-model="currentCustomer.gender" :options="['Male','Female']" placeholder="Select Gender" />
-                </div>
-                <div class="field">
-                    <label for="phone">Phone</label>
-                    <InputText id="phone" v-model="currentCustomer.phone" />
-                </div>
-                <div class="field">
-                    <label for="email">Email</label>
-                    <InputText id="email" v-model="currentCustomer.email" />
-                </div>
-                <div class="field">
-                    <label for="address">Address</label>
-                    <InputText id="address" v-model="currentCustomer.address" />
-                </div>
-                <div class="field">
-                    <label for="profilePicture">Profile Picture URL</label>
-                    <InputText id="profilePicture" v-model="currentCustomer.profilePicture" />
-                </div>
-            </div>
-            <template #footer>
-                <Button label="Cancel" icon="pi pi-times" @click="closeDialog" class="p-button-text" />
-                <Button label="Save" icon="pi pi-check" @click="saveCustomer" />
-            </template>
-        </Dialog>
-
-        <!-- View Customer Dialog -->
-        <Dialog :visible="viewDialogVisible" modal @hide="viewDialogVisible = false" header="Customer Details">
-            <div class="form-container">
-                <div><strong>Name:</strong> {{ currentCustomer.name }}</div>
-                <div><strong>Gender:</strong> {{ currentCustomer.gender }}</div>
-                <div><strong>Phone:</strong> {{ currentCustomer.phone }}</div>
-                <div><strong>Email:</strong> {{ currentCustomer.email }}</div>
-                <div><strong>Address:</strong> {{ currentCustomer.address }}</div>
-                <div><strong>Profile Picture:</strong> <img :src="currentCustomer.profilePicture" alt="Profile" style="width: 50px; border-radius: 50%;" /></div>
-            </div>
-            <template #footer>
-                <Button label="Close" icon="pi pi-times" @click="viewDialogVisible = false" class="p-button-text" />
-            </template>
-        </Dialog>
-    </div>
-</template>
-
 
 <style scoped lang="scss">
 .form-container {
@@ -220,17 +261,32 @@ const resetCurrentCustomer = () => {
     display: flex;
     flex-direction: column;
 }
-.cursor-pointer {
-    cursor: pointer;
+.text-green-600 {
+    color: green;
 }
-.action-icon {
-    font-size: 1rem;
-    transition: transform 0.2s, color 0.2s;
-    color: #555;
-
-    &:hover {
-        transform: scale(1.1);
-        color: #007bff;
-    }
+.text-red-600 {
+    color: red;
+}
+.custom-dialog {
+    width: 50vw;
+    max-width: 600px;
+}
+.card-container {
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+}
+.card-header {
+    margin-bottom: 1rem;
+}
+.card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+.profile-pic {
+    width: 50px;
+    border-radius: 50%;
 }
 </style>

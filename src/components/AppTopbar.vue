@@ -1,9 +1,12 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue';
 import { useLayout } from '@/components/composables/layout';
+import { useRouter } from 'vue-router';  // Add this import
 
 const { onMenuToggle, toggleDarkMode, isDarkTheme } = useLayout();
 const isProfileMenuVisible = ref(false);
+
+const router = useRouter();
 
 // Profile menu items
 const profileMenuItems = [
@@ -18,7 +21,8 @@ function toggleProfileMenu() {
 function handleMenuClick(item) {
     console.log(`Clicked on ${item.label}`);
     if (item.label === 'Logout') {
-        // Handle logout logic
+
+        router.push({ name: 'login' });
     }
     isProfileMenuVisible.value = false;
 }
@@ -35,6 +39,7 @@ onBeforeUnmount(() => {
     document.removeEventListener('scroll', handleScroll);
 });
 </script>
+
 
 <template>
     <div :class="{ 'dark-theme': isDarkTheme }" class="layout-topbar">

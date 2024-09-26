@@ -3,11 +3,39 @@ import { ref } from 'vue';
 
 import AppMenuItem from './AppMenuItem.vue';
 
+
 const model = ref([
     {
         label: 'Home',
         items: [{ label: 'Dashboard', icon: 'pi pi-fw pi-home', to: '/' }]
     },
+    {
+    icon: 'pi pi-fw pi-briefcase',
+    to: '/products',
+    items: [
+        {
+            label: 'Products',
+            icon: 'pi pi-fw pi-shopping-cart',
+            items: [
+                {
+                    label: 'List Product',
+                    icon: 'pi pi-fw pi-box',
+                    to: '/products/listproduct'
+                },
+                {
+                    label: 'Add Product',
+                    icon: 'pi pi-fw pi-cart-plus',
+                    to: '/products/addproduct'
+                },
+                {
+                    label: 'Stock',
+                    icon: 'pi pi-fw pi-table',
+                    to: '/products/stock'
+                }
+            ]
+        }
+    ]
+},
     {
         items: [{ label: 'User', icon: 'pi pi-fw pi-user', to: '/user' }]
     },
@@ -30,28 +58,7 @@ const model = ref([
         items: [{ label: 'Setting', icon: 'pi pi-fw pi-cog', to: '/setting' }]
     },
 
-    // {
-    //     icon: 'pi pi-fw pi-briefcase',
-    //     to: '/pages',
-    //     items: [
-    //         {
-    //             label: 'Management',
-    //             icon: 'pi pi-fw pi-sitemap',
-    //             items: [
-    //                 {
-    //                     label: 'Error',
-    //                     icon: 'pi pi-fw pi-times-circle',
-    //                     to: ''
-    //                 },
-    //                 {
-    //                     label: 'Access Denied',
-    //                     icon: 'pi pi-fw pi-lock',
-    //                     to: ''
-    //                 }
-    //             ]
-    //         }
-    //     ]
-    // }
+
 ]);
 </script>
 

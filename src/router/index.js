@@ -9,47 +9,77 @@ const router = createRouter({
             component: AppLayout,
             children: [
                 {
-                    path: '/',
+                    path: '',
                     name: 'dashboard',
                     component: () => import('@/views/Dashboard.vue')
                 },
                 {
-                    path: '/user',
+                    path: 'user',
                     name: 'user',
                     component: () => import('@/views/User.vue')
                 },
                 {
-                    path: '/product',
+                    path: 'product',
                     name: 'product',
                     component: () => import('@/views/Product.vue')
                 },
                 {
-                    path: '/order',
+                    path: 'order',
                     name: 'order',
                     component: () => import('@/views/Order.vue')
                 },
                 {
-                    path: '/report',
+                    path: 'report',
                     name: 'report',
                     component: () => import('@/views/Report.vue')
                 },
                 {
-                    path: '/wallet',
+                    path: 'wallet',
                     name: 'wallet',
                     component: () => import('@/views/Wallet.vue')
                 },
                 {
-                    path: '/notification',
+                    path: 'notification',
                     name: 'notification',
                     component: () => import('@/views/Notification.vue')
                 },
                 {
-                    path: '/setting',
+                    path: 'setting',
                     name: 'setting',
                     component: () => import('@/views/Setting.vue')
                 }
             ]
-
+        },
+        {
+            path: '/auth',
+            children: [
+                {
+                    path: 'login',
+                    name: 'login',
+                    component: () => import('@/views/pages/auth/Login.vue')
+                }
+            ]
+        },
+        {
+            path: '/products',
+            component: AppLayout,
+            children: [
+                {
+                    path: 'listproduct',
+                    name: 'listproduct',
+                    component: () => import('@/views/pages/products/ListProduct.vue')
+                },
+                {
+                    path: 'addproduct',
+                    name: 'addproduct',
+                    component: () => import('@/views/pages/products/AddProduct.vue')
+                },
+                {
+                    path: 'stock',
+                    name: 'stock',
+                    component: () => import('@/views/pages/products/Stock.vue')
+                }
+            ]
         }
 
     ]

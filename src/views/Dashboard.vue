@@ -6,18 +6,21 @@ import { onMounted, ref, watch } from 'vue';
 const { getPrimary, getSurface, isDarkTheme } = useLayout();
 
 const products = ref(null);
+const loadingProducts = ref(true);
 const chartData = ref(null);
 const chartOptions = ref(null);
 
 onMounted(() => {
-    ProductService.getProductsSmall().then((data) => (products.value = data));
+    ProductService.getProductsSmall().then((data) => {
+        products.value = data;
+        loadingProducts.value = false; // Set loading to false once data is fetched
+    });
     chartData.value = setChartData();
     chartOptions.value = setChartOptions();
 });
 
 function setChartData() {
     const documentStyle = getComputedStyle(document.documentElement);
-
     return {
         labels: ['Q1', 'Q2', 'Q3', 'Q4'],
         datasets: [
@@ -157,13 +160,29 @@ watch([getPrimary, getSurface, isDarkTheme], () => {
         <div class="col-span-12 xl:col-span-6">
             <div class="card">
                 <div class="font-semibold text-xl mb-4">Revenue Stream</div>
-                <Chart type="bar" :data="chartData" :options="chartOptions" class="h-80" />
+                <template v-if="loadingProducts">
+                    <div class="text-center text-gray-500">Loading products data. Please wait...</div>
+                </template>
+                <template v-else-if="!products || products.length === 0">
+                    <div class="text-center text-gray-500">No products found.</div>
+                </template>
+                <template v-else>
+                    <Chart type="bar" :data="chartData" :options="chartOptions" class="h-80" />
+                </template>
             </div>
         </div>
         <div class="col-span-12 xl:col-span-6">
             <div class="card">
                 <div class="font-semibold text-xl mb-4">Revenue Stream</div>
-                <Chart type="bar" :data="chartData" :options="chartOptions" class="h-80" />
+                <template v-if="loadingProducts">
+                    <div class="text-center text-gray-500">Loading products data. Please wait...</div>
+                </template>
+                <template v-else-if="!products || products.length === 0">
+                    <div class="text-center text-gray-500">No products found.</div>
+                </template>
+                <template v-else>
+                    <Chart type="bar" :data="chartData" :options="chartOptions" class="h-80" />
+                </template>
             </div>
         </div>
     </div>
