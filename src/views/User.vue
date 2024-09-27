@@ -1,6 +1,137 @@
+<script setup>
+import { ref, reactive, onBeforeMount, computed } from 'vue';
+import { FilterMatchMode } from '@primevue/core/api';
+import Dialog from 'primevue/dialog';
+import Dropdown from 'primevue/dropdown';
+import InputText from 'primevue/inputtext';
+import Button from 'primevue/button';
+import DataTable from 'primevue/datatable';
+import Column from 'primevue/column';
+
+const customers1 = ref([]);
+const loading1 = ref(true);
+const errorMessage = ref('');
+const filters1 = reactive({
+    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+});
+const defaultImage = 'https://www.pngkit.com/png/full/329-3292528_fire-magic-cover-for-refreshment-center.png';
+
+const currentCustomer = reactive({
+    id: null,
+    name: '',
+    gender: 'Male',
+    phone: '',
+    email: '',
+    address: '',
+    profilePicture: defaultImage,
+    isActive: true,
+});
+const customerDialogVisible = ref(false);
+const viewDialogVisible = ref(false);
+const deleteCustomerDialogVisible = ref(false);
+const currentCustomerId = ref(null);
+const isEditMode = ref(false);
+
+onBeforeMount(async () => {
+    try {
+        const response = await fetch('https://fakestoreapi.com/users');
+        if (!response.ok) throw new Error('Network response was not ok');
+        const data = await response.json();
+        customers1.value = data.slice(0, 20).map(user => ({
+            id: user.id,
+            name: `${user.name.firstname} ${user.name.lastname}`,
+            gender: user.gender || 'Not specified',
+            phone: user.phone || 'Not provided',
+            email: user.email,
+            address: `${user.address.city}, ${user.address.street}, ${user.address.number}`,
+            profilePicture: user.image || defaultImage,
+            isActive: Math.random() > 0.5,
+        }));
+    } catch (error) {
+        console.error('Error fetching users:', error);
+        errorMessage.value = 'Failed to load customers. Please try again later.';
+    } finally {
+        loading1.value = false;
+    }
+});
+
+const showAddCustomerDialog = () => {
+    resetCurrentCustomer();
+    customerDialogVisible.value = true;
+    isEditMode.value = false;
+};
+
+const saveCustomer = () => {
+    try {
+        if (isEditMode.value) {
+            const index = customers1.value.findIndex(c => c.id === currentCustomer.id);
+            if (index !== -1) {
+                customers1.value[index] = { ...currentCustomer };
+            } else {
+                throw new Error('Customer not found for editing.');
+            }
+        } else {
+            const newId = customers1.value.length ? Math.max(...customers1.value.map(c => c.id)) + 1 : 1;
+            customers1.value.push({ ...currentCustomer, id: newId });
+        }
+        closeDialog();
+        errorMessage.value = ''; // Reset error message on successful save
+    } catch (error) {
+        console.error('Error saving customer:', error);
+        errorMessage.value = 'Failed to save customer. Please check the details and try again.';
+    }
+};
+
+const closeDialog = () => {
+    customerDialogVisible.value = false;
+    resetCurrentCustomer();
+};
+
+const resetCurrentCustomer = () => {
+    currentCustomer.id = null;
+    currentCustomer.name = '';
+    currentCustomer.gender = 'Male';
+    currentCustomer.phone = '';
+    currentCustomer.email = '';
+    currentCustomer.address = '';
+    currentCustomer.profilePicture = defaultImage;
+    currentCustomer.isActive = true;
+};
+
+const editUser = (customer) => {
+    Object.assign(currentCustomer, customer);
+    customerDialogVisible.value = true;
+    isEditMode.value = true;
+};
+
+const confirmDeleteUser = (customerId) => {
+    currentCustomerId.value = customerId;
+    deleteCustomerDialogVisible.value = true;
+};
+
+const deleteCustomer = (customerId) => {
+    try {
+        customers1.value = customers1.value.filter(c => c.id !== customerId);
+        deleteCustomerDialogVisible.value = false;
+        errorMessage.value = ''; // Reset error message on successful delete
+    } catch (error) {
+        console.error('Error deleting customer:', error);
+        errorMessage.value = 'Failed to delete customer. Please try again.';
+    }
+};
+
+const viewCustomer = (customer) => {
+    Object.assign(currentCustomer, customer);
+    viewDialogVisible.value = true;
+};
+</script>
+
 <template>
     <div class="card">
         <div class="font-semibold text-xl mb-4">Customer Management</div>
+        
+        <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
+
         <DataTable :value="customers1" :paginator="true" :rows="10" dataKey="id" :rowHover="true" :filters="filters1"
             filterDisplay="menu" :loading="loading1" :globalFilterFields="['name', 'gender', 'email']" showGridlines
             stripedRows tableStyle="min-width: 50rem">
@@ -140,117 +271,6 @@
     </div>
 </template>
 
-<script setup>
-import { ref, reactive, onBeforeMount } from 'vue';
-import { FilterMatchMode } from '@primevue/core/api';
-import Dialog from 'primevue/dialog';
-import Dropdown from 'primevue/dropdown';
-import InputText from 'primevue/inputtext';
-import Button from 'primevue/button';
-import DataTable from 'primevue/datatable';
-import Column from 'primevue/column';
-
-const customers1 = ref([]);
-const loading1 = ref(true);
-const filters1 = reactive({
-    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-});
-const defaultImage = 'https://www.pngkit.com/png/full/329-3292528_fire-magic-cover-for-refreshment-center.png';
-
-const currentCustomer = reactive({
-    id: null,
-    name: '',
-    gender: 'Male',
-    phone: '',
-    email: '',
-    address: '',
-    profilePicture: defaultImage,
-    isActive: true,
-});
-const customerDialogVisible = ref(false);
-const viewDialogVisible = ref(false);
-const deleteCustomerDialogVisible = ref(false);
-const currentCustomerId = ref(null);
-const isEditMode = ref(false);
-
-onBeforeMount(async () => {
-    try {
-        const response = await fetch('https://fakestoreapi.com/users');
-        const data = await response.json();
-        customers1.value = data.slice(0, 20).map(user => ({
-            id: user.id,
-            name: `${user.name.firstname} ${user.name.lastname}`,
-            gender: user.gender || 'Not specified',
-            phone: user.phone || 'Not provided',
-            email: user.email,
-            address: `${user.address.city}, ${user.address.street}, ${user.address.number}`,
-            profilePicture: user.image || defaultImage,
-            isActive: Math.random() > 0.5, // Randomly assign active/inactive for demo purposes
-        }));
-    } catch (error) {
-        console.error('Error fetching users:', error);
-    } finally {
-        loading1.value = false;
-    }
-});
-
-const showAddCustomerDialog = () => {
-    resetCurrentCustomer();
-    customerDialogVisible.value = true;
-    isEditMode.value = false;
-};
-
-const saveCustomer = () => {
-    if (isEditMode.value) {
-        const index = customers1.value.findIndex(c => c.id === currentCustomer.id);
-        if (index !== -1) {
-            customers1.value[index] = { ...currentCustomer };
-        }
-    } else {
-        const newId = customers1.value.length ? Math.max(...customers1.value.map(c => c.id)) + 1 : 1;
-        customers1.value.push({ ...currentCustomer, id: newId });
-    }
-    closeDialog();
-};
-
-const closeDialog = () => {
-    customerDialogVisible.value = false;
-    resetCurrentCustomer();
-};
-
-const resetCurrentCustomer = () => {
-    currentCustomer.id = null;
-    currentCustomer.name = '';
-    currentCustomer.gender = 'Male';
-    currentCustomer.phone = '';
-    currentCustomer.email = '';
-    currentCustomer.address = '';
-    currentCustomer.profilePicture = defaultImage;
-    currentCustomer.isActive = true;
-};
-
-const editUser = (customer) => {
-    Object.assign(currentCustomer, customer);
-    customerDialogVisible.value = true;
-    isEditMode.value = true;
-};
-
-const confirmDeleteUser = (customerId) => {
-    currentCustomerId.value = customerId;
-    deleteCustomerDialogVisible.value = true;
-};
-
-const deleteCustomer = (customerId) => {
-    customers1.value = customers1.value.filter(c => c.id !== customerId);
-    deleteCustomerDialogVisible.value = false;
-};
-
-const viewCustomer = (customer) => {
-    Object.assign(currentCustomer, customer);
-    viewDialogVisible.value = true;
-};
-</script>
-
 <style scoped lang="scss">
 .form-container {
     display: flex;
@@ -288,5 +308,10 @@ const viewCustomer = (customer) => {
 .profile-pic {
     width: 50px;
     border-radius: 50%;
+}
+.error-message {
+    color: red;
+    font-weight: bold;
+    margin: 1rem 0;
 }
 </style>

@@ -1,46 +1,3 @@
-<script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue';
-import { useLayout } from '@/components/composables/layout';
-import { useRouter } from 'vue-router';  // Add this import
-
-const { onMenuToggle, toggleDarkMode, isDarkTheme } = useLayout();
-const isProfileMenuVisible = ref(false);
-
-const router = useRouter();
-
-// Profile menu items
-const profileMenuItems = [
-    { label: 'Settings', icon: 'pi pi-cog' },
-    { label: 'Logout', icon: 'pi pi-sign-out' }
-];
-
-function toggleProfileMenu() {
-    isProfileMenuVisible.value = !isProfileMenuVisible.value;
-}
-
-function handleMenuClick(item) {
-    console.log(`Clicked on ${item.label}`);
-    if (item.label === 'Logout') {
-
-        router.push({ name: 'login' });
-    }
-    isProfileMenuVisible.value = false;
-}
-
-function handleScroll() {
-    isProfileMenuVisible.value = false;
-}
-
-onMounted(() => {
-    document.addEventListener('scroll', handleScroll);
-});
-
-onBeforeUnmount(() => {
-    document.removeEventListener('scroll', handleScroll);
-});
-</script>
-
-
 <template>
     <div :class="{ 'dark-theme': isDarkTheme }" class="layout-topbar">
         <div class="layout-topbar-logo-container">
@@ -54,7 +11,7 @@ onBeforeUnmount(() => {
 
         <div class="layout-topbar-actions">
             <div class="layout-config-menu">
-                <button type="button" class="layout-topbar-action" @click="toggleDarkMode">
+                <button type="button" class="layout-topbar-action" @click="handleToggleDarkMode">
                     <i :class="['pi', { 'pi-moon': isDarkTheme, 'pi-sun': !isDarkTheme }]"></i>
                 </button>
             </div>
@@ -70,8 +27,72 @@ onBeforeUnmount(() => {
                 </ul>
             </div>
         </div>
+
+        <!-- Loading Spinner -->
+        <div v-if="isLoading" class="loading-overlay">
+            <ProgressSpinner />
+        </div>
     </div>
 </template>
+
+<script setup>
+import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { useLayout } from '@/components/composables/layout';
+import { useRouter } from 'vue-router';
+import ProgressSpinner from 'primevue/progressspinner'; // Adjust the import as needed
+
+const { onMenuToggle, toggleDarkMode: layoutToggleDarkMode, isDarkTheme } = useLayout();
+const isProfileMenuVisible = ref(false);
+const isLoading = ref(false); // Loading state
+
+const router = useRouter();
+
+// Profile menu items
+const profileMenuItems = [
+    { label: 'Profile', icon: 'pi pi-user' },
+    { label: 'Settings', icon: 'pi pi-cog' },
+    { label: 'Logout', icon: 'pi pi-sign-out' }
+];
+
+function toggleProfileMenu() {
+    isProfileMenuVisible.value = !isProfileMenuVisible.value;
+}
+
+function handleToggleDarkMode() {
+    layoutToggleDarkMode();
+    localStorage.setItem('darkTheme', JSON.stringify(isDarkTheme.value));
+}
+
+function handleMenuClick(item) {
+    console.log(`Clicked on ${item.label}`);
+
+    if (item.label === 'Logout') {
+        isLoading.value = true;
+        setTimeout(() => {
+            router.push({ name: 'login' });
+            isLoading.value = false; // Reset loading state
+        }, 3000); // 3 seconds delay
+    } else {
+        isProfileMenuVisible.value = false;
+    }
+}
+
+function handleScroll() {
+    isProfileMenuVisible.value = false;
+}
+
+onMounted(() => {
+    const savedTheme = localStorage.getItem('darkTheme');
+    if (savedTheme) {
+        isDarkTheme.value = JSON.parse(savedTheme);
+    }
+    document.addEventListener('scroll', handleScroll);
+});
+
+onBeforeUnmount(() => {
+    document.removeEventListener('scroll', handleScroll);
+});
+</script>
 
 <style scoped>
 .layout-topbar {
@@ -85,31 +106,31 @@ onBeforeUnmount(() => {
     position: absolute;
     right: 1rem;
     top: 90%;
-    background: white; /* Default background for light mode */
+    background: white;
     border: 1px solid var(--border-color);
     border-radius: 0.50rem;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     z-index: 1000;
     width: 200px;
-    display: none; /* Ensure it’s hidden by default */
+    display: none;
 }
 
 .profile-menu.block {
-    display: block; /* Make sure the block class is applied */
+    display: block;
 }
 
 /* Dark Mode Styles for Dropdown */
 .dark-theme .profile-menu {
-    background: black !important; /* Background for dark mode */
-    border-color: #666 !important; /* Darker border for dark mode */
+    background: black !important;
+    border-color: #666 !important;
 }
 
 .dark-theme .profile-menu li {
-    color: white !important; /* Light text color in dark mode */
+    color: rgb(255, 255, 255) !important;
 }
 
 .dark-theme .profile-menu li:hover {
-    background-color: #555 !important; /* Darker hover effect in dark mode */
+    background-color: #555 !important;
 }
 
 /* Profile menu item styling */
@@ -133,5 +154,19 @@ onBeforeUnmount(() => {
 
 .profile-menu i {
     margin-right: 1rem;
+}
+
+/* Loading Spinner Styles */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
 }
 </style>

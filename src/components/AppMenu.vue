@@ -10,6 +10,9 @@ const model = ref([
         items: [{ label: 'Dashboard', icon: 'pi pi-fw pi-home', to: '/' }]
     },
     {
+        items: [{ label: 'User', icon: 'pi pi-fw pi-user', to: '/user' }]
+    },
+    {
     icon: 'pi pi-fw pi-briefcase',
     to: '/products',
     items: [
@@ -35,9 +38,65 @@ const model = ref([
             ]
         }
     ]
-},
+    },
     {
-        items: [{ label: 'User', icon: 'pi pi-fw pi-user', to: '/user' }]
+    icon: 'pi pi-fw pi-briefcase',
+    to: '/User Management',
+    items: [
+        {
+            label: 'User Management',
+            icon: 'pi pi-fw pi-megaphone',
+            items: [
+                {
+                    label: 'Users',
+                    icon: 'pi pi-fw pi-users',
+                    to: ''
+                },
+                {
+                    label: 'Roles & Permission',
+                    icon: 'pi pi-fw pi-file-edit',
+                    to: ''
+                },
+                {
+                    label: 'Account Request',
+                    icon: 'pi pi-fw pi-list',
+                    to: ''
+                }
+            ]
+        }
+    ]
+    },
+    {
+    icon: 'pi pi-fw pi-briefcase',
+    to: '/sale',
+    items: [
+        {
+            label: 'Sales',
+            icon: 'pi pi-fw pi-megaphone',
+            items: [
+                {
+                    label: 'Incoive List',
+                    icon: 'pi pi-fw pi-tablet',
+                    to: ''
+                },
+                {
+                    label: 'Invoice ( Customer )',
+                    icon: 'pi pi-fw pi-file-edit',
+                    to: ''
+                },
+                {
+                    label: 'Invoice ( Admin )',
+                    icon: 'pi pi-fw pi-file-edit',
+                    to: ''
+                },
+                {
+                    label: 'Invoice Template',
+                    icon: 'pi pi-fw pi-file',
+                    to: ''
+                }
+            ]
+        }
+    ]
     },
     {
         items: [{ label: 'Product', icon: 'pi pi-fw pi-th-large', to: '/product' }]

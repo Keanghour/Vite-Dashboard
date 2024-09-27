@@ -11,7 +11,8 @@ const router = createRouter({
                 {
                     path: '',
                     name: 'dashboard',
-                    component: () => import('@/views/Dashboard.vue')
+                    component: () => import('@/views/Dashboard.vue'),
+                    meta: { requiresAuth: true } // Add meta field for authentication
                 },
                 {
                     path: 'user',
@@ -57,9 +58,35 @@ const router = createRouter({
                     path: 'login',
                     name: 'login',
                     component: () => import('@/views/pages/auth/Login.vue')
+                },
+                {
+                    path: 'error',
+                    name: 'error',
+                    component: () => import('@/views/pages/auth/Error.vue')
+                },
+                {
+                    path: 'access',
+                    name: 'access',
+                    component: () => import('@/views/pages/auth/Access.vue')
                 }
             ]
         },
+        {
+            path: '/pages',
+            children: [
+                {
+                    path: 'empty',
+                    name: 'empty',
+                    component: () => import('@/views/pages/Empty.vue')
+                },
+                {
+                    path: 'notfound',
+                    name: 'notfound',
+                    component: () => import('@/views/pages/NotFound.vue')
+                }
+            ]
+        },
+
         {
             path: '/products',
             component: AppLayout,
@@ -81,8 +108,18 @@ const router = createRouter({
                 }
             ]
         }
-
     ]
+});
+
+// Navigation guard to check for authentication
+router.beforeEach((to, from, next) => {
+    const isAuthenticated = !!localStorage.getItem('token'); // Check if the token exists
+
+    if (to.meta.requiresAuth && !isAuthenticated) {
+        next({ name: 'login' }); // Redirect to login if not authenticated
+    } else {
+        next(); // Proceed to the route
+    }
 });
 
 export default router;

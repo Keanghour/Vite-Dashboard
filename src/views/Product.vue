@@ -1,3 +1,5 @@
+<!-- src\views\Product.vue -->
+
 <script setup>
 import { ProductService } from '@/service/ProductService';
 import { FilterMatchMode } from '@primevue/core/api';
