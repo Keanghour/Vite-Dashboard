@@ -1,3 +1,5 @@
+<!-- src/layout/AppLayout.vue -->
+
 <script setup>
 import { useLayout } from '@/components/composables/layout';
 import { computed, ref, watch } from 'vue';

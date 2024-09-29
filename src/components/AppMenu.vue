@@ -7,11 +7,12 @@ import AppMenuItem from './AppMenuItem.vue';
 const model = ref([
     {
         label: 'Home',
-        items: [{ label: 'Dashboard', icon: 'pi pi-fw pi-home', to: '/' }]
+        items: [{ label: 'Dashboard', icon: 'pi pi-fw pi-home', to: '/' }],
     },
     {
-        items: [{ label: 'User', icon: 'pi pi-fw pi-user', to: '/user' }]
+        items: [{ label: 'User Management', icon: 'pi pi-fw pi-users', to: '/userManagement' }]
     },
+
     {
     icon: 'pi pi-fw pi-briefcase',
     to: '/products',
@@ -21,51 +22,25 @@ const model = ref([
             icon: 'pi pi-fw pi-shopping-cart',
             items: [
                 {
-                    label: 'List Product',
+                    label: 'Products',
                     icon: 'pi pi-fw pi-box',
-                    to: '/products/listproduct'
+                    to: '/products/product'
                 },
                 {
-                    label: 'Add Product',
-                    icon: 'pi pi-fw pi-cart-plus',
-                    to: '/products/addproduct'
-                },
-                {
-                    label: 'Stock',
+                    label: 'Stocks',
                     icon: 'pi pi-fw pi-table',
                     to: '/products/stock'
+                },
+                {
+                    label: 'Add Product & Stock',
+                    icon: 'pi pi-fw pi-th-large',
+                    to: '/products/controllerlist'
                 }
             ]
         }
     ]
     },
-    {
-    icon: 'pi pi-fw pi-briefcase',
-    to: '/User Management',
-    items: [
-        {
-            label: 'User Management',
-            icon: 'pi pi-fw pi-megaphone',
-            items: [
-                {
-                    label: 'Users',
-                    icon: 'pi pi-fw pi-users',
-                    to: ''
-                },
-                {
-                    label: 'Roles & Permission',
-                    icon: 'pi pi-fw pi-file-edit',
-                    to: ''
-                },
-                {
-                    label: 'Account Request',
-                    icon: 'pi pi-fw pi-list',
-                    to: ''
-                }
-            ]
-        }
-    ]
-    },
+
     {
     icon: 'pi pi-fw pi-briefcase',
     to: '/sale',
@@ -97,6 +72,9 @@ const model = ref([
             ]
         }
     ]
+    },
+    {
+        items: [{ label: 'User', icon: 'pi pi-fw pi-user', to: '/user' }]
     },
     {
         items: [{ label: 'Product', icon: 'pi pi-fw pi-th-large', to: '/product' }]

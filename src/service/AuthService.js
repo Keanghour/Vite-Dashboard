@@ -1,15 +1,24 @@
+
+// src/service/AuthService.js
+
 import axios from 'axios';
 
-// const API_URL = 'http://127.0.0.1:8000/v1/auth/admin/api/login';
-const API_URL = 'https://crucial-gerrilee-hour-cadf9ee0.koyeb.app/v1/auth/admin/api/login';
+// Define the base URL for your API
+// const API_URL = 'https://crucial-gerrilee-hour-cadf9ee0.koyeb.app/v1/auth/admin/api/';
+const API_URL = 'http://127.0.0.1:8000/v1/auth/admin/api/';
+
+// Create an Axios instance with the base URL
+const apiClient = axios.create({
+    baseURL: API_URL,
+    headers: {
+        'Content-Type': 'application/json',
+    },
+});
+
 
 export const login = async (email, password) => {
     try {
-        const response = await axios.post(API_URL, { email, password }, {
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
+        const response = await apiClient.post('login', { email, password });
 
         // Ensure to return the necessary data based on your API response
         if (response.data.status === 200) {
@@ -30,5 +39,17 @@ export const login = async (email, password) => {
             success: false,
             message: error.response?.data?.detail || 'An unexpected error occurred. Please try again.'
         };
+    }
+};
+
+export const logout = async (token) => {
+    try {
+        await apiClient.post('logout', {}, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+            },
+        });
+    } catch (error) {
+        console.error('Logout API call failed:', error.response ? error.response.data : error.message);
     }
 };

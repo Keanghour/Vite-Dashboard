@@ -12,7 +12,7 @@ const router = createRouter({
                     path: '',
                     name: 'dashboard',
                     component: () => import('@/views/Dashboard.vue'),
-                    meta: { requiresAuth: true } // Add meta field for authentication
+                    meta: { requiresAuth: true } // Requires authentication
                 },
                 {
                     path: 'user',
@@ -71,6 +71,82 @@ const router = createRouter({
                 }
             ]
         },
+        // {
+        //     path: '/usermanagement',
+        //     component: AppLayout,
+        //     children: [
+        //         {
+        //             path: '',
+        //             name: 'usermanagement',
+        //             component: () => import('@/views/pages/UserManagement/UserManagement.vue'),
+        //             props: route => ({ tab: route.params.tab ? Number(route.params.tab) : 0 })
+        //         },
+        //         {
+        //             path: 'permission',
+        //             name: 'permission',
+        //             component: () => import('@/views/pages/UserManagement/Permission.vue')
+
+        //         },
+        //         {
+        //             path: 'rolespermission',
+        //             name: 'rolespermission',
+        //             component: () => import('@/views/pages/UserManagement/RolesManagement.vue')
+        //         },
+        //         {
+        //             path: 'users',
+        //             name: 'users',
+        //             component: () => import('@/views/pages/UserManagement/Users.vue')
+        //         },
+        //         {
+        //             path: 'accountrequest',
+        //             name: 'accountrequest',
+        //             component: () => import('@/views/pages/UserManagement/AccountManagement.vue'),
+        //         },
+        //         {
+        //             path: 'adduser',
+        //             name: 'adduser',
+        //             component: () => import('@/views/pages/UserManagement/AddManagement.vue')
+        //         },
+        //     ]
+        // },
+        {
+            path: '/usermanagement',
+            component: AppLayout,
+            children: [
+                {
+                    path: '',
+                    name: 'usermanagement',
+                    component: () => import('@/views/pages/UserManagement/UserManagement.vue'),
+                    props: route => ({ tab: route.params.tab ? Number(route.params.tab) : 0 })
+                },
+                {
+                    path: 'permission',
+                    name: 'permission',
+                    component: () => import('@/views/pages/UserManagement/Permission.vue')
+
+                },
+                {
+                    path: 'rolespermission',
+                    name: 'rolespermission',
+                    component: () => import('@/views/pages/UserManagement/RolesManagement.vue')
+                },
+                {
+                    path: 'users',
+                    name: 'users',
+                    component: () => import('@/views/pages/UserManagement/Users.vue')
+                },
+                {
+                    path: 'accountrequest',
+                    name: 'accountrequest',
+                    component: () => import('@/views/pages/UserManagement/AccountManagement.vue'),
+                },
+                {
+                    path: 'adduser',
+                    name: 'adduser',
+                    component: () => import('@/views/pages/UserManagement/AddManagement.vue')
+                },
+            ]
+        },
         {
             path: '/pages',
             children: [
@@ -86,15 +162,14 @@ const router = createRouter({
                 }
             ]
         },
-
         {
             path: '/products',
             component: AppLayout,
             children: [
                 {
-                    path: 'listproduct',
-                    name: 'listproduct',
-                    component: () => import('@/views/pages/products/ListProduct.vue')
+                    path: 'product',
+                    name: 'product',
+                    component: () => import('@/views/pages/products/Product.vue')
                 },
                 {
                     path: 'addproduct',
@@ -105,6 +180,16 @@ const router = createRouter({
                     path: 'stock',
                     name: 'stock',
                     component: () => import('@/views/pages/products/Stock.vue')
+                },
+                {
+                    path: 'addstock',
+                    name: 'addstock',
+                    component: () => import('@/views/pages/products/AddStock.vue')
+                },
+                {
+                    path: 'controllerlist',
+                    name: 'controllerlist',
+                    component: () => import('@/views/pages/products/ControllerList.vue')
                 }
             ]
         }

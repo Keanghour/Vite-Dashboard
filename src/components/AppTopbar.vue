@@ -28,7 +28,6 @@
             </div>
         </div>
 
-        <!-- Loading Spinner -->
         <div v-if="isLoading" class="loading-overlay">
             <ProgressSpinner />
         </div>
@@ -40,6 +39,7 @@ import { ref, onMounted, onBeforeUnmount } from 'vue';
 import { useLayout } from '@/components/composables/layout';
 import { useRouter } from 'vue-router';
 import ProgressSpinner from 'primevue/progressspinner'; // Adjust the import as needed
+import { logout } from '@/service/AuthService'; // Import the logout function
 
 const { onMenuToggle, toggleDarkMode: layoutToggleDarkMode, isDarkTheme } = useLayout();
 const isProfileMenuVisible = ref(false);
@@ -63,15 +63,22 @@ function handleToggleDarkMode() {
     localStorage.setItem('darkTheme', JSON.stringify(isDarkTheme.value));
 }
 
-function handleMenuClick(item) {
+async function handleMenuClick(item) {
     console.log(`Clicked on ${item.label}`);
 
     if (item.label === 'Logout') {
         isLoading.value = true;
-        setTimeout(() => {
-            router.push({ name: 'login' });
-            isLoading.value = false; // Reset loading state
-        }, 3000); // 3 seconds delay
+
+        await logout(); // Call the logout API
+
+        // Clear tokens from local storage
+        localStorage.removeItem('token');
+        localStorage.removeItem('refreshToken');
+
+        // Redirect to login
+        router.push({ name: 'login' });
+
+        isLoading.value = false; // Reset loading state
     } else {
         isProfileMenuVisible.value = false;
     }
@@ -119,7 +126,6 @@ onBeforeUnmount(() => {
     display: block;
 }
 
-/* Dark Mode Styles for Dropdown */
 .dark-theme .profile-menu {
     background: black !important;
     border-color: #666 !important;
@@ -133,7 +139,6 @@ onBeforeUnmount(() => {
     background-color: #555 !important;
 }
 
-/* Profile menu item styling */
 .profile-menu ul {
     list-style: none;
     padding: 6px;
@@ -156,7 +161,6 @@ onBeforeUnmount(() => {
     margin-right: 1rem;
 }
 
-/* Loading Spinner Styles */
 .loading-overlay {
     position: fixed;
     top: 0;
